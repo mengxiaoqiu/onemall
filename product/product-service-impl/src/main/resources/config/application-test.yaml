@@ -1,0 +1,13 @@
+spring:
+  # datasource
+  datasource:
+    url: jdbc:mysql://localhost:3306/mall_product?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: 303813
+
+# rocketmq
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    group: product-producer-group
