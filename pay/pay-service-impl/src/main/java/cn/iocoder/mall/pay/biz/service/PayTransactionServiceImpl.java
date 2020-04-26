@@ -4,6 +4,7 @@ import cn.iocoder.common.framework.util.DateUtil;
 import cn.iocoder.common.framework.util.MathUtil;
 import cn.iocoder.common.framework.util.ServiceExceptionUtil;
 import cn.iocoder.common.framework.vo.CommonResult;
+import cn.iocoder.mall.order.api.OrderService;
 import cn.iocoder.mall.pay.api.PayTransactionService;
 import cn.iocoder.mall.pay.api.bo.transaction.PayTransactionBO;
 import cn.iocoder.mall.pay.api.bo.transaction.PayTransactionPageBO;
@@ -24,6 +25,7 @@ import cn.iocoder.mall.pay.biz.dao.PayTransactionMapper;
 import cn.iocoder.mall.pay.biz.dataobject.PayAppDO;
 import cn.iocoder.mall.pay.biz.dataobject.PayTransactionDO;
 import cn.iocoder.mall.pay.biz.dataobject.PayTransactionExtensionDO;
+import org.apache.dubbo.config.annotation.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
 
 @Service
 @org.apache.dubbo.config.annotation.Service(validation = "true", version = "${dubbo.provider.PayTransactionService.version}")
@@ -46,6 +49,9 @@ public class PayTransactionServiceImpl implements PayTransactionService {
     private PayTransactionExtensionMapper payTransactionExtensionMapper;
     @Autowired
     private PayNotifyTaskMapper payTransactionNotifyTaskMapper;
+
+    @Reference(validation = "true", version = "${dubbo.provider.OrderService.version}")
+    private OrderService orderService;
 
     @Autowired
     private PayAppServiceImpl payAppService;
@@ -124,15 +130,17 @@ public class PayTransactionServiceImpl implements PayTransactionService {
                 .setStatus(PayTransactionStatusEnum.WAITING.getValue());
         payTransactionExtensionMapper.insert(payTransactionExtensionDO);
         // 调用三方接口
-        AbstractPaySDK paySDK = PaySDKFactory.getSDK(payTransactionSubmitDTO.getPayChannel());
+        //模拟支付
+/*        AbstractPaySDK paySDK = PaySDKFactory.getSDK(payTransactionSubmitDTO.getPayChannel());
         CommonResult<String> invokeResult = paySDK.submitTransaction(payTransaction, payTransactionExtensionDO, null); // TODO 暂时传入 extra = null
         if (invokeResult.isError()) {
             throw ServiceExceptionUtil.exception(invokeResult.getCode(), invokeResult.getMessage());
-        }
+        }*/
         // TODO 轮询三方接口，是否已经支付的任务
         // 返回成功
+        orderService.updatePaySuccess(payTransactionSubmitDTO.getOrderId(), payTransaction.getPrice());
         return new PayTransactionSubmitBO().setId(payTransactionExtensionDO.getId())
-                .setInvokeResponse(invokeResult.getData());
+                .setInvokeResponse("succeed");
     }
 
     @Override

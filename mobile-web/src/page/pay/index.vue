@@ -1,18 +1,18 @@
 <template>
-    <div>
-        <headerNav title="收银台"/>
-        <van-cell-group>
-            <van-cell title="订单商品名" :value="transaction.orderSubject" />
-            <van-cell title="价格" :value="transaction.price / 100.0" />
-        </van-cell-group>
-        <van-button slot="button" size="small" type="primary" @click="submit(9999)">模拟支付</van-button>
-    </div>
+  <div>
+    <headerNav title="收银台"/>
+    <van-cell-group>
+      <van-cell title="订单商品名" :value="transaction.orderSubject"/>
+      <van-cell title="价格" :value="transaction.price / 100.0"/>
+    </van-cell-group>
+    <van-button slot="button" size="small" type="primary" @click="submit(9999)">模拟支付</van-button>
+  </div>
 </template>
 
 <script>
-  import { getTransaction, submitTransaction } from '../../api/pay';
+  import {getTransaction, submitTransaction} from '../../api/pay';
   import pingpp from 'pingpp-js';
-  import { Dialog } from 'vant';
+  import {Dialog} from 'vant';
 
   export default {
 
@@ -36,8 +36,10 @@
       submit(payChannel) {
         let that = this;
         submitTransaction(this.appId, this.orderId, payChannel).then(data => {
-          pingpp.createPayment(data.invokeResponse, function(result, err) {
-            if (result === 'success') {
+          // pingpp.createPayment(data.invokeResponse, function(result, err) {
+          //   if (result === 'success') {
+          // pingpp.createPayment(data.invokeResponse, function (result, err) {
+            if (data.invokeResponse === 'succeed') {
               Dialog.alert({
                 title: '系统提示',
                 message: '支付成功',
@@ -53,10 +55,10 @@
               // console.log(err.extra);
               Dialog.alert({
                 title: '系统提示',
-                message: '支付失败：' + err.msg,
+                message: '支付失败1：' + err.msg,
               });
             }
-          });
+          // });
         });
       }
     }
